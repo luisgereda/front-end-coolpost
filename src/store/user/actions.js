@@ -1,27 +1,41 @@
 import { apiUrl } from "../../config/constants";
 import axios from "axios";
-import { selectToken } from "./selectors";
+import { selectToken, selectUser } from "./selectors";
 import {
   appLoading,
   appDoneLoading,
   showMessageWithTimeout,
-  setMessage
+  setMessage,
 } from "../appState/actions";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const TOKEN_STILL_VALID = "TOKEN_STILL_VALID";
 export const LOG_OUT = "LOG_OUT";
 
-const loginSuccess = userWithToken => {
+const loginSuccess = (userWithToken) => {
   return {
     type: LOGIN_SUCCESS,
-    payload: userWithToken
+    payload: userWithToken,
   };
 };
 
-const tokenStillValid = userWithoutToken => ({
+const updateSpace = (space) => {
+  return {
+    type: "UPDATE_SPACE",
+    payload: space,
+  };
+};
+
+export function createPost(story) {
+  return {
+    type: "story/createPost",
+    payload: story,
+  };
+}
+
+const tokenStillValid = (userWithoutToken) => ({
   type: TOKEN_STILL_VALID,
-  payload: userWithoutToken
+  payload: userWithoutToken,
 });
 
 export const logOut = () => ({ type: LOG_OUT });
@@ -33,12 +47,13 @@ export const signUp = (name, email, password) => {
       const response = await axios.post(`${apiUrl}/signup`, {
         name,
         email,
-        password
+        password,
       });
-
+      console.log(response);
       dispatch(loginSuccess(response.data));
       dispatch(showMessageWithTimeout("success", true, "account created"));
       dispatch(appDoneLoading());
+      //dispatch(updateSpace(response.data.space));
     } catch (error) {
       if (error.response) {
         console.log(error.response.data.message);
@@ -58,9 +73,9 @@ export const login = (email, password) => {
     try {
       const response = await axios.post(`${apiUrl}/login`, {
         email,
-        password
+        password,
       });
-
+      console.log(response);
       dispatch(loginSuccess(response.data));
       dispatch(showMessageWithTimeout("success", false, "welcome back!", 1500));
       dispatch(appDoneLoading());
@@ -90,7 +105,7 @@ export const getUserWithStoredToken = () => {
       // if we do have a token,
       // check wether it is still valid or if it is expired
       const response = await axios.get(`${apiUrl}/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       // token is still valid
@@ -109,3 +124,16 @@ export const getUserWithStoredToken = () => {
     }
   };
 };
+
+export const postStory =
+  (name, content, image) => async (dispatch, getstate) => {
+    const { token, space } = selectUser(getstate());
+
+    const response = await axios.post(
+      `${apiUrl}/space/${space.id}/stories`,
+      { name, content, image },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log(response);
+    dispatch(createPost(response.data.newStory));
+  };
