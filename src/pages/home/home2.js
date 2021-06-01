@@ -16,8 +16,6 @@ export default function Home2() {
   return (
     <div>
       {spaces.map((space) => {
-        console.log(space);
-
         return (
           <SpaceCard
             key={space.id}
@@ -26,6 +24,7 @@ export default function Home2() {
             description={space.description}
             backgroundColor={space.backgroundColor}
             color={space.color}
+            show={true}
           />
         );
       })}

@@ -9,9 +9,13 @@ export default function StoryCard(props) {
     >
       <h1>{props.title}</h1>
       <h2>{props.description}</h2>
-      <Link to={`/spaces/${props.id}`}>
-        <button>review</button>
-      </Link>
+      {props.show ? (
+        <Link to={`/spaces/${props.id}`}>
+          <button>review</button>
+        </Link>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

@@ -19,10 +19,17 @@ const loginSuccess = (userWithToken) => {
   };
 };
 
-const updateSpace = (space) => {
+const deletedStory = (id) => {
+  return {
+    type: "DELETED_STORY",
+    payload: id,
+  };
+};
+
+const updatedSpace = (newSpace) => {
   return {
     type: "UPDATE_SPACE",
-    payload: space,
+    payload: newSpace,
   };
 };
 
@@ -136,4 +143,34 @@ export const postStory =
     );
     console.log(response);
     dispatch(createPost(response.data.newStory));
+  };
+
+export const deleteStory = (id) => async (dispatch, getstate) => {
+  const { token, space } = selectUser(getstate());
+  const response3 = await axios.delete(
+    `${apiUrl}/space/${space.id}/stories/${id}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  dispatch(deletedStory(id));
+};
+
+export const UpdateSpace =
+  (title, description, backgroundColor, color) =>
+  async (dispatch, getState) => {
+    const { token, space } = selectUser(getState());
+    const newSpace = await axios.patch(
+      `${apiUrl}/space/${space.id}`,
+      {
+        title,
+        description,
+        backgroundColor,
+        color,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    dispatch(updatedSpace(newSpace.data.space));
   };

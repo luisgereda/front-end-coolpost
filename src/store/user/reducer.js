@@ -20,10 +20,12 @@ export default (state = initialState, action) => {
     case TOKEN_STILL_VALID:
       return { ...state, ...action.payload };
 
-    case "UPDATE_SPACE":
+    case "DELETED_STORY":
+      const id = action.payload;
+      const newStories = state.space.stories.filter((story) => story.id !== id);
       return {
         ...state,
-        space: { ...action.payload },
+        space: { ...state.space, stories: newStories },
       };
     case "story/createPost":
       return {
@@ -32,6 +34,11 @@ export default (state = initialState, action) => {
           ...state.space,
           stories: [...state.space.stories, action.payload],
         },
+      };
+    case "UPDATE_SPACE":
+      return {
+        ...state,
+        space: { ...action.payload, stories: state.space.stories },
       };
     default:
       return state;
